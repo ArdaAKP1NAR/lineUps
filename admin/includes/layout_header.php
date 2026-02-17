@@ -34,10 +34,6 @@ if (substr($baseUrl, -5) === 'admin') {
     </script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .glass { background: rgba(30, 41, 59, 0.7); backdrop-filter: blur(12px); }
-        [x-cloak] { display: none !important; }
-    </style>
+    <link rel="stylesheet" href="<?= htmlspecialchars($assetUrl) ?>/css/adminStyles.css">
 </head>
 <body class="bg-slate-950 text-slate-200 antialiased">
