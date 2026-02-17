@@ -1,0 +1,7 @@
+-- İlk admin kullanıcı (admin / 1234, şifre hash'li)
+--
+-- Bu kullanıcıyı oluşturmak için tarayıcıda şu adresi açın:
+--   http://localhost/LineUp/admin/setup_admin.php
+--
+-- setup_admin.php, "1234" için bcrypt hash üretip users tablosuna yazar.
+-- İşlemden sonra güvenlik için setup_admin.php dosyasını silebilirsiniz.
