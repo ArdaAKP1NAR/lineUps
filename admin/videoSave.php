@@ -39,10 +39,9 @@ if (!$videoTitle) {
     exit;
 }
 
-// Video dosyası: proje kökündeki uploads/videos/ klasörü (tam path)
+// Video dosyası: proje kökü uploads/videos/ (sabit yol)
 $videoUrl = null;
-$projectRoot = dirname(__DIR__, 2);
-$targetDir = $projectRoot . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR;
+$videoUploadDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR;
 $uploadError = $_FILES['video_file']['error'] ?? null;
 if ($uploadError !== null && $uploadError !== UPLOAD_ERR_OK) {
     if ($uploadError === UPLOAD_ERR_NO_FILE && $videoId) {
@@ -90,16 +89,21 @@ if (!empty($_FILES['video_file']['tmp_name']) && is_uploaded_file($_FILES['video
             exit;
         }
     }
-    if (!is_dir($targetDir)) {
-        if (!@mkdir($targetDir, 0755, true)) {
+    if (!is_dir($videoUploadDir)) {
+        if (!@mkdir($videoUploadDir, 0755, true)) {
             setFlash('error', 'uploads/videos klasörü oluşturulamadı. Klasör izinlerini kontrol edin.');
             header('Location: videoOperations.php?' . ($videoId ? 'edit=' . $videoId : 'add=1'));
             exit;
         }
     }
     $timestamp = time();
-    $videoFileName = $videoId ? ('video_' . $videoId . '_' . $timestamp . '.' . $ext) : ('video_new_' . $timestamp . '.' . $ext);
-    $targetPath = $targetDir . $videoFileName;
+    // Orijinal dosya adını kullan (örn. Deneme.mp4 → Deneme_1771355851.mp4)
+    $baseName = pathinfo($originalName, PATHINFO_FILENAME);
+    $baseName = preg_replace('/[^a-zA-Z0-9_\-\p{L}]/u', '_', $baseName ?: 'video');
+    $baseName = trim($baseName, '_');
+    $baseName = substr($baseName ?: 'video', 0, 80);
+    $videoFileName = $baseName . '_' . $timestamp . '.' . $ext;
+    $targetPath = $videoUploadDir . $videoFileName;
     if (move_uploaded_file($_FILES['video_file']['tmp_name'], $targetPath)) {
         if (!is_file($targetPath) || !is_readable($targetPath)) {
             @unlink($targetPath);
@@ -107,7 +111,7 @@ if (!empty($_FILES['video_file']['tmp_name']) && is_uploaded_file($_FILES['video
             header('Location: videoOperations.php?' . ($videoId ? 'edit=' . $videoId : 'add=1'));
             exit;
         }
-        $videoUrl = '/uploads/videos/' . $videoFileName;
+        $videoUrl = $videoFileName;
     } else {
         setFlash('error', 'Video dosyası yüklenirken hata oluştu. (PHP upload_limit veya klasör yazma izni kontrol edin.)');
         header('Location: videoOperations.php?' . ($videoId ? 'edit=' . $videoId : 'add=1'));
@@ -117,9 +121,11 @@ if (!empty($_FILES['video_file']['tmp_name']) && is_uploaded_file($_FILES['video
     $stmt = $pdo->prepare('SELECT video_url, thumbnail_url FROM videos WHERE id = ? AND is_deleted = 0');
     $stmt->execute([$videoId]);
     $row = $stmt->fetch(PDO::FETCH_ASSOC);
-    $videoUrl = $row ? $row['video_url'] : null;
-    if (empty($thumbnailUrl) && !empty($row['thumbnail_url'])) {
-        $thumbnailUrl = $row['thumbnail_url'];
+    if ($row) {
+        $videoUrl = $row['video_url'];
+        if (empty($thumbnailUrl) && !empty($row['thumbnail_url'])) {
+            $thumbnailUrl = $row['thumbnail_url'];
+        }
     }
 }
 
@@ -134,7 +140,7 @@ if (!$videoSlug) {
 }
 
 // Thumbnail: proje kökü uploads/thumbnails/
-$thumbDir = $projectRoot . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'thumbnails' . DIRECTORY_SEPARATOR;
+$thumbDir = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'thumbnails' . DIRECTORY_SEPARATOR;
 if (!is_dir($thumbDir)) {
     @mkdir($thumbDir, 0755, true);
 }

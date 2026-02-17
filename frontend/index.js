@@ -323,50 +323,141 @@
     const panel = $('#videoDebugPanel');
     const pre = $('#videoDebugContent');
     const link = $('#videoDebugLink');
+    const copyBtn = $('#videoDebugCopy');
     if (!panel || !pre) return;
-    const lines = [];
-    lines.push('base_path (API): ' + JSON.stringify(DATA.base_path));
-    lines.push('video_url (DB):  ' + JSON.stringify(video.video_url || '(yok)'));
-    lines.push('Tam URL:         ' + (fullSrc || '(yok)'));
-    lines.push('Durum:           yükleniyor...');
-    pre.textContent = lines.join('\n');
-    link.href = fullSrc ? (fullSrc.startsWith('http') ? fullSrc : (window.location.origin + fullSrc)) : '#';
+
+    var allLines = [];
+    function render() { pre.textContent = allLines.join('\n'); }
+
+    var basePath = DATA.base_path || document.location.pathname.replace(/\/frontend\/.*$/, '') || '';
+    var absoluteUrl = fullSrc ? (fullSrc.startsWith('http') ? fullSrc : (window.location.origin + (fullSrc.startsWith('/') ? fullSrc : '/' + fullSrc))) : '';
+
+    allLines.push('═══════════════════════════════════════════════════════════');
+    allLines.push('  VİDEO BİLGİSİ');
+    allLines.push('═══════════════════════════════════════════════════════════');
+    allLines.push('video_id:          ' + (video.id ?? '(yok)'));
+    allLines.push('video title:       ' + (video.title || '(yok)'));
+    allLines.push('video_url (DB):    ' + JSON.stringify(video.video_url || '(yok)'));
+    var extractedName = (video.video_url && (video.video_url.split('/').pop() || video.video_url.replace(/^.*[\\/]/, ''))) || '(yok)';
+    allLines.push('Dosya adı (f=):    ' + extractedName);
+    allLines.push('');
+    allLines.push('base_path (API):   ' + JSON.stringify(basePath));
+    allLines.push('Stream URL (göreli): ' + (fullSrc || '(yok)'));
+    allLines.push('Tam URL (absolute): ' + (absoluteUrl || '(yok)'));
+    allLines.push('');
+    allLines.push('Tarayıcı sayfa:     ' + window.location.href);
+    allLines.push('Origin:            ' + window.location.origin);
+    allLines.push('Pathname:          ' + window.location.pathname);
+    link.href = absoluteUrl || '#';
     link.style.display = fullSrc ? '' : 'none';
+    if (copyBtn) {
+      copyBtn.onclick = function () {
+        try {
+          navigator.clipboard.writeText(pre.textContent);
+          copyBtn.textContent = 'Kopyalandı!';
+          setTimeout(function () { copyBtn.textContent = 'Debug metnini kopyala'; }, 2000);
+        } catch (e) { copyBtn.textContent = 'Kopyalanamadı'; }
+      };
+    }
+
     if (!fullSrc) {
-      lines[3] = 'Durum:           Bu videoda video_url yok (admin panelden video yükleyin).';
-      pre.textContent = lines.join('\n');
+      allLines.push('');
+      allLines.push('Durum:             Bu videoda video_url yok. Admin panelden video yükleyin.');
+      render();
       panel.classList.add('visible');
       return;
     }
-    var debugStatus = 'yükleniyor...';
-    function setStatus(s) {
-      debugStatus = s;
-      lines[3] = 'Durum:           ' + s;
-      pre.textContent = lines.join('\n');
-    }
-    videoEl.onerror = function () {
-      var msg = 'Video elementi hata verdi. ';
-      if (videoEl.error) {
-        if (videoEl.error.code === 2) msg += 'MEDIA_ERR_NETWORK (ağ/404?).';
-        else if (videoEl.error.code === 4) msg += 'MEDIA_ERR_SRC_NOT_SUPPORTED.';
-        else msg += 'Code: ' + videoEl.error.code;
-      }
-      setStatus(msg);
-    };
-    videoEl.onloadeddata = function () {
-      setStatus('OK — video yüklendi.');
-    };
-    videoEl.oncanplay = function () {
-      setStatus('OK — oynatılabilir.');
-    };
-    fetch(fullSrc, { method: 'HEAD' })
-      .then(function (r) {
-        setStatus('HTTP ' + r.status + (r.status === 200 ? ' — dosya var.' : ' — dosya bulunamadı veya erişilemiyor (404?).'));
+
+    allLines.push('');
+    allLines.push('═══════════════════════════════════════════════════════════');
+    allLines.push('  SUNUCU DURUMU (videoDebug.php)');
+    allLines.push('═══════════════════════════════════════════════════════════');
+    allLines.push('Yükleniyor...');
+    render();
+    panel.classList.add('visible');
+
+    var debugApiUrl = (basePath ? basePath.replace(/\/$/, '') : '') + '/frontend/videoDebug.php?f=' + encodeURIComponent(extractedName);
+    fetch(debugApiUrl)
+      .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, status: r.status, json: j }; }); })
+      .then(function (result) {
+        var idx = allLines.length - 1;
+        allLines[idx] = 'API yanıtı:          HTTP ' + result.status + (result.ok ? ' OK' : ' Hata');
+        if (result.json && result.json.server) {
+          var s = result.json.server;
+          allLines.push('document_root:       ' + (s.document_root ?? '(yok)'));
+          allLines.push('frontend script_dir: ' + (s.script_dir_frontend ?? '(yok)'));
+          allLines.push('video.php var mı:    ' + (s.video_php_exists ? 'Evet' : 'Hayır'));
+          allLines.push('uploads_path:       ' + (s.uploads_path ?? '(yok)'));
+          allLines.push('uploads_videos_path: ' + (s.uploads_videos_path ?? '(yok)'));
+          allLines.push('uploads okunabilir:  ' + (s.uploads_path_readable ? 'Evet' : 'Hayır'));
+          allLines.push('videos okunabilir:   ' + (s.uploads_videos_readable ? 'Evet' : 'Hayır'));
+        }
+        if (result.json && result.json.files) {
+          allLines.push('Dosyalar (uploads/):     ' + (result.json.files.in_uploads_root && result.json.files.in_uploads_root.length ? result.json.files.in_uploads_root.join(', ') : '(boş veya yok)'));
+          allLines.push('Dosyalar (videos/):      ' + (result.json.files.in_uploads_videos && result.json.files.in_uploads_videos.length ? result.json.files.in_uploads_videos.join(', ') : '(boş veya yok)'));
+        }
+        if (result.json && result.json.resolved) {
+          var r = result.json.resolved;
+          allLines.push('İstenen dosya:       ' + (r.requested_file || '(yok)'));
+          allLines.push('Sunucuda bulundu mu: ' + (r.found ? 'EVET' : 'HAYIR'));
+          allLines.push('Kullanılan path:     ' + (r.path_used || '(yok)'));
+          allLines.push('uploads/videos/ içinde: ' + (r.in_videos_dir ? 'Evet' : 'Hayır'));
+          allLines.push('uploads/ kökünde:    ' + (r.in_uploads_root ? 'Evet' : 'Hayır'));
+        }
+        render();
       })
       .catch(function (e) {
-        setStatus('İstek hatası: ' + (e.message || e));
+        var idx = allLines.length - 1;
+        allLines[idx] = 'videoDebug.php hatası: ' + (e.message || String(e));
+        render();
       });
-    panel.classList.add('visible');
+
+    allLines.push('');
+    allLines.push('═══════════════════════════════════════════════════════════');
+    allLines.push('  STREAM İSTEĞİ (HEAD video.php?f=...)');
+    allLines.push('═══════════════════════════════════════════════════════════');
+    allLines.push('İstek atılıyor...');
+    allLines.push('Video elementi:     yükleniyor...');
+    render();
+
+    fetch(absoluteUrl, { method: 'HEAD' })
+      .then(function (r) {
+        var start = allLines.indexOf('İstek atılıyor...');
+        if (start !== -1) allLines[start] = 'HTTP durum:         ' + r.status + ' ' + (r.status === 200 ? 'OK' : r.status === 206 ? 'Partial Content' : 'Hata');
+        allLines.push('Content-Type:       ' + (r.headers.get('Content-Type') || '(yok)'));
+        allLines.push('Content-Length:     ' + (r.headers.get('Content-Length') || '(yok)'));
+        allLines.push('Accept-Ranges:      ' + (r.headers.get('Accept-Ranges') || '(yok)'));
+        render();
+      })
+      .catch(function (e) {
+        var start = allLines.indexOf('İstek atılıyor...');
+        if (start !== -1) allLines[start] = 'HEAD isteği başarısız: ' + (e.message || String(e));
+        render();
+      });
+
+    var videoStatusLine = 'Video elementi:     yükleniyor...';
+    function setVideoStatus(text) {
+      var i = allLines.indexOf('Video elementi:     yükleniyor...');
+      if (i === -1) i = allLines.findIndex(function (l) { return l.indexOf('Video elementi:') !== -1; });
+      if (i !== -1) allLines[i] = 'Video elementi:     ' + text;
+      render();
+    }
+    videoEl.onerror = function () {
+      var msg = 'HATA ';
+      if (videoEl.error) {
+        msg += 'code=' + videoEl.error.code + ' ';
+        if (videoEl.error.code === 1) msg += '(MEDIA_ERR_ABORTED)';
+        else if (videoEl.error.code === 2) msg += '(MEDIA_ERR_NETWORK – ağ/404/CORS?)';
+        else if (videoEl.error.code === 3) msg += '(MEDIA_ERR_DECODE)';
+        else if (videoEl.error.code === 4) msg += '(MEDIA_ERR_SRC_NOT_SUPPORTED – format/URL?)';
+        else msg += '(bilinmeyen)';
+        if (videoEl.error.message) msg += ' | message=' + videoEl.error.message;
+      }
+      setVideoStatus(msg);
+    };
+    videoEl.onloadeddata = function () { setVideoStatus('OK – loadeddata'); };
+    videoEl.oncanplay = function () { setVideoStatus('OK – oynatılabilir (canplay)'); };
+    videoEl.onloadedmetadata = function () { setVideoStatus('OK – metadata yüklendi'); };
   }
 
   // ─── Detail view ─────────────────────────────────────

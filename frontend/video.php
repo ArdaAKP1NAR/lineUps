@@ -1,77 +1,58 @@
 <?php
 /**
- * Video stream endpoint: uploads/videos/ içindeki dosyayı sunar.
- * f parametresi: dosya adı (örn. video_3_1771353204.mp4). basePath config'ten; path DOCUMENT_ROOT üzerinden.
+ * Video stream: uploads/videos/ içindeki dosyayı sunar.
+ * f = dosya adı (örn. video_3_1771353204.mp4). Accept-Ranges ile seek desteklenir.
  */
 error_reporting(0);
 ini_set('display_errors', '0');
 
-$configPath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'adminpanel' . DIRECTORY_SEPARATOR . 'config.php';
-$config = is_file($configPath) ? (require $configPath) : [];
-$apiPath = isset($config['apiPath']) ? $config['apiPath'] : '';
-$apiPath = trim(str_replace(['\\', '/'], DIRECTORY_SEPARATOR, $apiPath), DIRECTORY_SEPARATOR);
-$docRoot = isset($_SERVER['DOCUMENT_ROOT']) ? rtrim($_SERVER['DOCUMENT_ROOT'], DIRECTORY_SEPARATOR) : '';
+$fileName = $_GET['f'] ?? '';
+$fileName = basename($fileName);
 
-$filename = isset($_GET['f']) ? $_GET['f'] : '';
-$filename = basename($filename);
-if ($filename === '' || preg_match('/[^a-zA-Z0-9_\-\.]/', $filename)) {
+if (!$fileName || preg_match('/[^a-zA-Z0-9_\-\.]/', $fileName)) {
     http_response_code(400);
     header('Content-Type: text/plain; charset=utf-8');
     echo 'Geçersiz dosya adı.';
     exit;
 }
 
-if ($docRoot !== '' && $apiPath !== '') {
-    $videoDir = realpath($docRoot . DIRECTORY_SEPARATOR . $apiPath . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'videos');
-} else {
-    $videoDir = realpath(dirname(__DIR__) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'videos');
+$uploadsRoot = realpath(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'uploads');
+$videosDir = $uploadsRoot ? realpath($uploadsRoot . DIRECTORY_SEPARATOR . 'videos') : null;
+// Önce uploads/videos/, yoksa uploads/ kökü (eski yüklemeler için)
+$filePath = null;
+if ($videosDir && is_dir($videosDir)) {
+    $try = $videosDir . DIRECTORY_SEPARATOR . $fileName;
+    if (is_file($try) && is_readable($try)) $filePath = $try;
 }
-
-if (!$videoDir || !is_dir($videoDir)) {
+if (!$filePath && $uploadsRoot && is_dir($uploadsRoot)) {
+    $try = $uploadsRoot . DIRECTORY_SEPARATOR . $fileName;
+    if (is_file($try) && is_readable($try)) $filePath = $try;
+}
+if (!$filePath) {
     http_response_code(404);
     header('Content-Type: text/plain; charset=utf-8');
-    echo 'Video klasörü bulunamadı.';
+    echo 'Video dosyası bulunamadı: ' . htmlspecialchars($fileName);
     exit;
 }
-
-$filePath = $videoDir . DIRECTORY_SEPARATOR . $filename;
-if (!is_file($filePath) || !is_readable($filePath)) {
-    http_response_code(404);
-    header('Content-Type: text/plain; charset=utf-8');
-    $list = @scandir($videoDir) ?: [];
-    $files = array_diff($list, ['.', '..', 'index.php']);
-    $fileList = count($files) > 0 ? implode(', ', array_slice($files, 0, 20)) : '(klasör boş)';
-    echo "Video dosyası bulunamadı: " . $filename . "\n\n";
-    echo "Aranan konum: uploads/videos/\n";
-    echo "Klasördeki dosyalar: " . $fileList . "\n\n";
-    echo "Çözüm: Admin panelden bu videoyu düzenleyin, Video dosyası alanından dosyayı tekrar seçip Güncelle deyin.";
-    exit;
-}
-
-$ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-$mimeMap = [
-    'mp4' => 'video/mp4',
-    'webm' => 'video/webm',
-    'mov' => 'video/quicktime',
-    'avi' => 'video/x-msvideo',
-    'mkv' => 'video/x-matroska',
-    'm4v' => 'video/mp4',
-];
-$contentType = $mimeMap[$ext] ?? 'video/mp4';
 
 $size = filesize($filePath);
+$ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+$mime = 'video/mp4';
+if ($ext === 'webm') $mime = 'video/webm';
+elseif ($ext === 'mov') $mime = 'video/quicktime';
+elseif ($ext === 'avi') $mime = 'video/x-msvideo';
+elseif ($ext === 'mkv' || $ext === 'm4v') $mime = $ext === 'm4v' ? 'video/mp4' : 'video/x-matroska';
 
-if (ob_get_level()) {
-    ob_end_clean();
-}
-header('Content-Type: ' . $contentType);
-header('Content-Length: ' . $size);
+if (ob_get_level()) ob_end_clean();
+
+header('Content-Type: ' . $mime);
 header('Accept-Ranges: bytes');
+header('Content-Length: ' . $size);
 header('Cache-Control: public, max-age=3600');
 
 if (isset($_SERVER['HTTP_RANGE']) && preg_match('/bytes=(\d+)-(\d*)/', $_SERVER['HTTP_RANGE'], $m)) {
     $start = (int) $m[1];
-    $end = $m[2] !== '' ? (int) $m[2] : $size - 1;
+    $end = ($m[2] !== '') ? (int) $m[2] : $size - 1;
     $end = min($end, $size - 1);
     $length = $end - $start + 1;
     http_response_code(206);
