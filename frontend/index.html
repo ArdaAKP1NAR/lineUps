@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TacLineup — Valorant & CS2 Tactical Lineups</title>
+  <meta name="description"
+    content="Premium tactical lineup and position guide for competitive Valorant and CS2 players. Master smoke, flash, molly, and recon setups." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+  <!-- ───────── TOP NAVIGATION ───────── -->
+  <nav id="topnav">
+    <div class="nav-left">
+      <a href="#" class="logo" id="logo">
+        <span class="logo-icon">◈</span>
+        <span class="logo-text">Tac<span class="accent">Lineup</span></span>
+      </a>
+      <div class="game-tabs" id="gameTabs">
+        <button class="game-tab active" data-game="valorant">
+          <span class="tab-dot val-dot"></span> Valorant
+        </button>
+        <button class="game-tab" data-game="cs2">
+          <span class="tab-dot cs2-dot"></span> CS2
+        </button>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="search-box" id="searchBox">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search agent, map, utility…" autocomplete="off" />
+        <kbd class="search-kbd">/</kbd>
+      </div>
+      <button class="icon-btn" id="favNavBtn" title="Favorites">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path
+            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+        </svg>
+      </button>
+      <button class="icon-btn profile-btn" id="profileBtn" title="Profile">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ───────── MAIN WRAPPER ───────── -->
+  <div class="app-wrapper">
+
+    <!-- ─── SIDEBAR ─── -->
+    <aside id="sidebar">
+      <div class="sidebar-header">
+        <h3>Filters</h3>
+        <button class="clear-btn" id="clearFilters">Clear all</button>
+      </div>
+
+      <!-- Valorant Filters -->
+      <div class="filter-group" id="valFilters">
+        <h4 class="filter-title">Agent</h4>
+        <div class="agent-grid" id="agentGrid">
+          <button class="agent-chip" data-agent="Jett" title="Jett"><span class="agent-avatar">🌪️</span></button>
+          <button class="agent-chip" data-agent="Sova" title="Sova"><span class="agent-avatar">🏹</span></button>
+          <button class="agent-chip" data-agent="Viper" title="Viper"><span class="agent-avatar">🧪</span></button>
+          <button class="agent-chip" data-agent="Brimstone" title="Brimstone"><span
+              class="agent-avatar">🎯</span></button>
+          <button class="agent-chip" data-agent="Omen" title="Omen"><span class="agent-avatar">👤</span></button>
+          <button class="agent-chip" data-agent="KAY/O" title="KAY/O"><span class="agent-avatar">🤖</span></button>
+          <button class="agent-chip" data-agent="Killjoy" title="Killjoy"><span class="agent-avatar">⚙️</span></button>
+          <button class="agent-chip" data-agent="Cypher" title="Cypher"><span class="agent-avatar">🎩</span></button>
+          <button class="agent-chip" data-agent="Phoenix" title="Phoenix"><span class="agent-avatar">🔥</span></button>
+          <button class="agent-chip" data-agent="Raze" title="Raze"><span class="agent-avatar">💣</span></button>
+        </div>
+
+        <h4 class="filter-title">Map</h4>
+        <div class="map-list" id="valMapList">
+          <button class="map-chip" data-map="Bind">Bind</button>
+          <button class="map-chip" data-map="Ascent">Ascent</button>
+          <button class="map-chip" data-map="Haven">Haven</button>
+          <button class="map-chip" data-map="Split">Split</button>
+          <button class="map-chip" data-map="Icebox">Icebox</button>
+          <button class="map-chip" data-map="Breeze">Breeze</button>
+          <button class="map-chip" data-map="Fracture">Fracture</button>
+          <button class="map-chip" data-map="Lotus">Lotus</button>
+          <button class="map-chip" data-map="Sunset">Sunset</button>
+        </div>
+
+        <h4 class="filter-title">Ability Type</h4>
+        <div class="ability-list" id="valAbilityList">
+          <button class="ability-chip" data-ability="Smoke"><span class="ability-icon">💨</span> Smoke</button>
+          <button class="ability-chip" data-ability="Molly"><span class="ability-icon">🔥</span> Molly</button>
+          <button class="ability-chip" data-ability="Flash"><span class="ability-icon">⚡</span> Flash</button>
+          <button class="ability-chip" data-ability="Recon"><span class="ability-icon">📡</span> Recon</button>
+        </div>
+      </div>
+
+      <!-- CS2 Filters -->
+      <div class="filter-group hidden" id="cs2Filters">
+        <h4 class="filter-title">Map</h4>
+        <div class="map-list" id="cs2MapList">
+          <button class="map-chip" data-map="Mirage">Mirage</button>
+          <button class="map-chip" data-map="Inferno">Inferno</button>
+          <button class="map-chip" data-map="Nuke">Nuke</button>
+          <button class="map-chip" data-map="Dust2">Dust 2</button>
+          <button class="map-chip" data-map="Overpass">Overpass</button>
+          <button class="map-chip" data-map="Vertigo">Vertigo</button>
+          <button class="map-chip" data-map="Anubis">Anubis</button>
+          <button class="map-chip" data-map="Ancient">Ancient</button>
+        </div>
+
+        <h4 class="filter-title">Utility Type</h4>
+        <div class="ability-list" id="cs2UtilityList">
+          <button class="ability-chip" data-ability="Smoke"><span class="ability-icon">💨</span> Smoke</button>
+          <button class="ability-chip" data-ability="Flash"><span class="ability-icon">⚡</span> Flash</button>
+          <button class="ability-chip" data-ability="Molotov"><span class="ability-icon">🔥</span> Molotov</button>
+          <button class="ability-chip" data-ability="HE"><span class="ability-icon">💥</span> HE</button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ─── CONTENT ─── -->
+    <main id="mainContent">
+
+      <!-- GRID VIEW -->
+      <section id="gridView">
+        <div class="content-header">
+          <h1 id="contentTitle">Valorant Lineups</h1>
+          <p class="result-count" id="resultCount">24 lineups found</p>
+        </div>
+        <div class="lineup-grid" id="lineupGrid">
+          <!-- Cards injected by JS -->
+        </div>
+      </section>
+
+      <!-- DETAIL VIEW -->
+      <section id="detailView" class="hidden">
+        <button class="back-btn" id="backBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+          Back to lineups
+        </button>
+
+        <div class="detail-layout">
+          <div class="detail-media">
+            <div class="media-placeholder" id="detailMedia">
+              <div class="play-overlay">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
+              </div>
+              <img id="detailImage" src="" alt="Lineup preview" />
+            </div>
+            <div class="step-thumbnails" id="stepThumbnails">
+              <div class="step-thumb active">Step 1</div>
+              <div class="step-thumb">Step 2</div>
+              <div class="step-thumb">Step 3</div>
+            </div>
+          </div>
+
+          <div class="detail-info">
+            <div class="detail-badges" id="detailBadges">
+              <span class="badge difficulty-badge">Medium</span>
+              <span class="badge pro-badge">⭐ Pro</span>
+            </div>
+            <h2 id="detailTitle">Lineup Title</h2>
+            <p class="detail-desc" id="detailDesc">Detailed description of the lineup.</p>
+
+            <div class="detail-meta">
+              <div class="meta-item">
+                <span class="meta-label">Map</span>
+                <span class="meta-value" id="detailMap">—</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Agent / Utility</span>
+                <span class="meta-value" id="detailAgent">—</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Technique</span>
+                <span class="meta-value" id="detailTechnique">—</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Side</span>
+                <span class="meta-value" id="detailSide">—</span>
+              </div>
+            </div>
+
+            <div class="detail-steps" id="detailSteps">
+              <h3>Instructions</h3>
+              <ol>
+                <li>Stand in the corner next to the box on A site.</li>
+                <li>Aim at the tip of the antenna on the rooftop.</li>
+                <li>Jump-throw the smoke grenade.</li>
+              </ol>
+            </div>
+
+            <div class="minimap-container">
+              <h3>Position on Map</h3>
+              <div class="minimap" id="minimap">
+                <div class="minimap-dot"></div>
+              </div>
+            </div>
+
+            <div class="detail-actions">
+              <button class="action-btn primary-action" id="copyCrosshairBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+                Copy Crosshair
+              </button>
+              <button class="action-btn fav-action" id="favBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path
+                    d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+                Save to Favorites
+              </button>
+            </div>
+
+            <div class="community-rating">
+              <h3>Community Rating</h3>
+              <div class="stars" id="starRating">
+                <span class="star filled" data-star="1">★</span>
+                <span class="star filled" data-star="2">★</span>
+                <span class="star filled" data-star="3">★</span>
+                <span class="star filled" data-star="4">★</span>
+                <span class="star" data-star="5">★</span>
+              </div>
+              <span class="rating-text">4.2 / 5 — 128 votes</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- MOBILE SIDEBAR TOGGLE -->
+  <button class="mobile-filter-toggle" id="mobileFilterToggle">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="4" y1="21" x2="4" y2="14" />
+      <line x1="4" y1="10" x2="4" y2="3" />
+      <line x1="12" y1="21" x2="12" y2="12" />
+      <line x1="12" y1="8" x2="12" y2="3" />
+      <line x1="20" y1="21" x2="20" y2="16" />
+      <line x1="20" y1="12" x2="20" y2="3" />
+      <line x1="1" y1="14" x2="7" y2="14" />
+      <line x1="9" y1="8" x2="15" y2="8" />
+      <line x1="17" y1="16" x2="23" y2="16" />
+    </svg>
+  </button>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">Copied!</div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
