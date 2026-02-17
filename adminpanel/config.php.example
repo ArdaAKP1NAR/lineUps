@@ -1,6 +1,7 @@
 <?php
 /**
- * Database config - copy to config.php and set your values
+ * Database and project path - copy to config.php and set your values
+ * apiPath: URL prefix for project root (e.g. /lineUps1). Used for video/thumbnail links.
  */
 return [
     'db' => [
@@ -11,4 +12,5 @@ return [
         'username' => 'root',
         'password' => '',
     ],
+    'apiPath' => '/lineUps1',
 ];

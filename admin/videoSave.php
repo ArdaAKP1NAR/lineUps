@@ -39,9 +39,10 @@ if (!$videoTitle) {
     exit;
 }
 
-// Video dosyası: yeni yükleme veya düzenlemede mevcut (dosya adı = orijinal adın güvenli hali + zaman damgası)
+// Video dosyası: proje kökündeki uploads/videos/ klasörü (tam path)
 $videoUrl = null;
-$videoUploadDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR;
+$projectRoot = dirname(__DIR__, 2);
+$targetDir = $projectRoot . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'videos' . DIRECTORY_SEPARATOR;
 $uploadError = $_FILES['video_file']['error'] ?? null;
 if ($uploadError !== null && $uploadError !== UPLOAD_ERR_OK) {
     if ($uploadError === UPLOAD_ERR_NO_FILE && $videoId) {
@@ -89,18 +90,16 @@ if (!empty($_FILES['video_file']['tmp_name']) && is_uploaded_file($_FILES['video
             exit;
         }
     }
-    if (!is_dir($videoUploadDir)) {
-        if (!@mkdir($videoUploadDir, 0755, true)) {
+    if (!is_dir($targetDir)) {
+        if (!@mkdir($targetDir, 0755, true)) {
             setFlash('error', 'uploads/videos klasörü oluşturulamadı. Klasör izinlerini kontrol edin.');
             header('Location: videoOperations.php?' . ($videoId ? 'edit=' . $videoId : 'add=1'));
             exit;
         }
     }
-    $baseName = pathinfo($originalName, PATHINFO_FILENAME);
-    $safeName = preg_replace('/[^a-zA-Z0-9\-_]+/', '-', $baseName);
-    $safeName = trim($safeName, '-') ?: 'video';
-    $videoFileName = $safeName . '_' . time() . '.' . $ext;
-    $targetPath = $videoUploadDir . $videoFileName;
+    $timestamp = time();
+    $videoFileName = $videoId ? ('video_' . $videoId . '_' . $timestamp . '.' . $ext) : ('video_new_' . $timestamp . '.' . $ext);
+    $targetPath = $targetDir . $videoFileName;
     if (move_uploaded_file($_FILES['video_file']['tmp_name'], $targetPath)) {
         if (!is_file($targetPath) || !is_readable($targetPath)) {
             @unlink($targetPath);
@@ -134,17 +133,17 @@ if (!$videoSlug) {
     $videoSlug = slugify($videoTitle);
 }
 
-// Dosya yükleme (thumbnail)
-$uploadDir = dirname(__DIR__, 2) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'thumbnails' . DIRECTORY_SEPARATOR;
-if (!is_dir($uploadDir)) {
-    @mkdir($uploadDir, 0755, true);
+// Thumbnail: proje kökü uploads/thumbnails/
+$thumbDir = $projectRoot . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'thumbnails' . DIRECTORY_SEPARATOR;
+if (!is_dir($thumbDir)) {
+    @mkdir($thumbDir, 0755, true);
 }
 if (!empty($_FILES['thumbnail_file']['tmp_name']) && is_uploaded_file($_FILES['thumbnail_file']['tmp_name'])) {
     $ext = pathinfo($_FILES['thumbnail_file']['name'], PATHINFO_EXTENSION) ?: 'jpg';
     $safeExt = in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'gif', 'webp']) ? strtolower($ext) : 'jpg';
-    $newName = 'thumb_' . ($videoId ?: 'new') . '_' . time() . '.' . $safeExt;
-    if (move_uploaded_file($_FILES['thumbnail_file']['tmp_name'], $uploadDir . $newName)) {
-        $thumbnailUrl = '/uploads/thumbnails/' . $newName;
+    $thumbName = 'thumb_' . ($videoId ?: 'new') . '_' . time() . '.' . $safeExt;
+    if (move_uploaded_file($_FILES['thumbnail_file']['tmp_name'], $thumbDir . $thumbName)) {
+        $thumbnailUrl = '/uploads/thumbnails/' . $thumbName;
     }
 }
 

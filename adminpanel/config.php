@@ -1,6 +1,7 @@
 <?php
 /**
- * Veritabanı ayarları - lineupdb (XAMPP)
+ * Veritabanı ve proje path ayarları (XAMPP)
+ * apiPath: Tarayıcıda proje kökü (Video/thumbnail URL'leri bu prefix ile oluşturulur)
  */
 return [
     'db' => [
@@ -11,4 +12,5 @@ return [
         'username' => 'root',
         'password' => '',
     ],
+    'apiPath' => '/lineUps1',
 ];
