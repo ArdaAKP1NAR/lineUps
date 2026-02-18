@@ -95,7 +95,7 @@
         });
     });
 
-    // ─── FILTER LOGIC ─────────────────────────────────────
+    // ─── FILTER LOGIC  AAAA─────────────────────────────────────
     function bindChips(selector, filterKey) {
         $$(selector).forEach(chip => {
             chip.addEventListener('click', () => {
