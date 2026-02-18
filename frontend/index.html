@@ -11,7 +11,11 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
     rel="stylesheet" />
+<<<<<<< HEAD
   <link rel="stylesheet" href="style.css" />
+=======
+  <link rel="stylesheet" href="uiStyles.css" />
+>>>>>>> efc950f4056c43d5c06946aad80197ef6d929d11
 </head>
 
 <body>
@@ -24,12 +28,16 @@
         <span class="logo-text">Tac<span class="accent">Lineup</span></span>
       </a>
       <div class="game-tabs" id="gameTabs">
+<<<<<<< HEAD
         <button class="game-tab active" data-game="valorant">
           <span class="tab-dot val-dot"></span> Valorant
         </button>
         <button class="game-tab" data-game="cs2">
           <span class="tab-dot cs2-dot"></span> CS2
         </button>
+=======
+        <!-- Navbar kategorileri (type=navbar) index.js ile doldurulur -->
+>>>>>>> efc950f4056c43d5c06946aad80197ef6d929d11
       </div>
     </div>
     <div class="nav-right">
@@ -65,6 +73,7 @@
         <h3>Filters</h3>
         <button class="clear-btn" id="clearFilters">Clear all</button>
       </div>
+<<<<<<< HEAD
 
       <!-- Valorant Filters -->
       <div class="filter-group" id="valFilters">
@@ -126,6 +135,10 @@
           <button class="ability-chip" data-ability="Molotov"><span class="ability-icon">🔥</span> Molotov</button>
           <button class="ability-chip" data-ability="HE"><span class="ability-icon">💥</span> HE</button>
         </div>
+=======
+      <div id="sidebarFilterGroups">
+        <!-- game_content kategorileri index.js ile gruplu olarak doldurulur -->
+>>>>>>> efc950f4056c43d5c06946aad80197ef6d929d11
       </div>
     </aside>
 
@@ -135,11 +148,19 @@
       <!-- GRID VIEW -->
       <section id="gridView">
         <div class="content-header">
+<<<<<<< HEAD
           <h1 id="contentTitle">Valorant Lineups</h1>
           <p class="result-count" id="resultCount">24 lineups found</p>
         </div>
         <div class="lineup-grid" id="lineupGrid">
           <!-- Cards injected by JS -->
+=======
+          <h1 id="contentTitle">Lineups</h1>
+          <p class="result-count" id="resultCount">0 lineups found</p>
+        </div>
+        <div class="lineup-grid" id="lineupGrid">
+          <!-- Kartlar index.js ile doldurulur -->
+>>>>>>> efc950f4056c43d5c06946aad80197ef6d929d11
         </div>
       </section>
 
@@ -155,27 +176,46 @@
         <div class="detail-layout">
           <div class="detail-media">
             <div class="media-placeholder" id="detailMedia">
+<<<<<<< HEAD
               <div class="play-overlay">
+=======
+              <video id="detailVideo" controls playsinline preload="metadata" class="detail-video"></video>
+              <div class="play-overlay" id="detailPlayOverlay">
+>>>>>>> efc950f4056c43d5c06946aad80197ef6d929d11
                 <svg viewBox="0 0 24 24" fill="currentColor">
                   <polygon points="5 3 19 12 5 21 5 3" />
                 </svg>
               </div>
+<<<<<<< HEAD
               <img id="detailImage" src="" alt="Lineup preview" />
             </div>
             <div class="step-thumbnails" id="stepThumbnails">
               <div class="step-thumb active">Step 1</div>
               <div class="step-thumb">Step 2</div>
               <div class="step-thumb">Step 3</div>
+=======
+              <img id="detailImage" src="" alt="Lineup preview" class="detail-poster visible" />
+            </div>
+            <div class="step-thumbnails" id="stepThumbnails">
+              <!-- Adım küçük resimleri isteğe bağlı -->
+>>>>>>> efc950f4056c43d5c06946aad80197ef6d929d11
             </div>
           </div>
 
           <div class="detail-info">
             <div class="detail-badges" id="detailBadges">
+<<<<<<< HEAD
               <span class="badge difficulty-badge">Medium</span>
               <span class="badge pro-badge">⭐ Pro</span>
             </div>
             <h2 id="detailTitle">Lineup Title</h2>
             <p class="detail-desc" id="detailDesc">Detailed description of the lineup.</p>
+=======
+              <span class="badge difficulty-badge">—</span>
+            </div>
+            <h2 id="detailTitle">Lineup Title</h2>
+            <p class="detail-desc" id="detailDesc">Description.</p>
+>>>>>>> efc950f4056c43d5c06946aad80197ef6d929d11
 
             <div class="detail-meta">
               <div class="meta-item">
@@ -187,22 +227,31 @@
                 <span class="meta-value" id="detailAgent">—</span>
               </div>
               <div class="meta-item">
+<<<<<<< HEAD
                 <span class="meta-label">Technique</span>
                 <span class="meta-value" id="detailTechnique">—</span>
               </div>
               <div class="meta-item">
                 <span class="meta-label">Side</span>
                 <span class="meta-value" id="detailSide">—</span>
+=======
+                <span class="meta-label">Categories</span>
+                <span class="meta-value" id="detailCategories">—</span>
+>>>>>>> efc950f4056c43d5c06946aad80197ef6d929d11
               </div>
             </div>
 
             <div class="detail-steps" id="detailSteps">
               <h3>Instructions</h3>
+<<<<<<< HEAD
               <ol>
                 <li>Stand in the corner next to the box on A site.</li>
                 <li>Aim at the tip of the antenna on the rooftop.</li>
                 <li>Jump-throw the smoke grenade.</li>
               </ol>
+=======
+              <div id="detailStepsContent"></div>
+>>>>>>> efc950f4056c43d5c06946aad80197ef6d929d11
             </div>
 
             <div class="minimap-container">
@@ -213,12 +262,21 @@
             </div>
 
             <div class="detail-actions">
+<<<<<<< HEAD
               <button class="action-btn primary-action" id="copyCrosshairBtn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
                   <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
                 </svg>
                 Copy Crosshair
+=======
+              <button class="action-btn primary-action" id="copyLinkBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                </svg>
+                Copy Link
+>>>>>>> efc950f4056c43d5c06946aad80197ef6d929d11
               </button>
               <button class="action-btn fav-action" id="favBtn">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -229,6 +287,7 @@
               </button>
             </div>
 
+<<<<<<< HEAD
             <div class="community-rating">
               <h3>Community Rating</h3>
               <div class="stars" id="starRating">
@@ -239,6 +298,13 @@
                 <span class="star" data-star="5">★</span>
               </div>
               <span class="rating-text">4.2 / 5 — 128 votes</span>
+=======
+            <!-- Video debug panel (neden oynatılmıyor / 404) -->
+            <div class="debug-panel" id="videoDebugPanel">
+              <h3 class="debug-title">Video debug</h3>
+              <pre id="videoDebugContent">—</pre>
+              <a id="videoDebugLink" href="#" target="_blank" rel="noopener" class="debug-link">Videoyu yeni sekmede aç</a>
+>>>>>>> efc950f4056c43d5c06946aad80197ef6d929d11
             </div>
           </div>
         </div>
@@ -265,7 +331,14 @@
   <!-- Toast -->
   <div class="toast" id="toast">Copied!</div>
 
+<<<<<<< HEAD
   <script src="app.js"></script>
 </body>
 
 </html>
+=======
+  <script src="index.js"></script>
+</body>
+
+</html>
+>>>>>>> efc950f4056c43d5c06946aad80197ef6d929d11

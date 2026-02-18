@@ -144,6 +144,7 @@ require_once __DIR__ . '/includes/layout_sidebar.php';
                                 <span class="mb-1 text-sm font-medium text-slate-300">Video yükle</span>
                                 <span class="text-xs text-slate-500">MP4, WebM, MOV, AVI, MKV (sürükle-bırak veya tıklayın)</span>
                                 <input type="file" name="video_file" accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,video/x-matroska,.mp4,.webm,.mov,.avi,.mkv,.m4v" class="mt-2 hidden" <?= $editId ? '' : 'required' ?>>
+                                <p class="mt-2 text-xs text-slate-500">Kaydedilen ad: <strong>DosyaAdı_zaman.mp4</strong> (örn. DenemeKayit_1739123456.mp4). Sitede index bu isimle oynatır.</p>
                             </label>
                         </div>
                         <div>

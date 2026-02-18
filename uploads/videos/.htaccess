@@ -1,0 +1,10 @@
+# Video dosyalarına doğrudan erişime izin ver
+<IfModule mod_headers.c>
+  Header set Access-Control-Allow-Origin "*"
+</IfModule>
+# MP4 ve diğer video MIME tipleri
+<IfModule mod_mime.c>
+  AddType video/mp4 .mp4
+  AddType video/webm .webm
+  AddType video/quicktime .mov
+</IfModule>

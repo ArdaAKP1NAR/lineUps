@@ -1,0 +1,17 @@
+/* ========================================================
+   LineUp Admin — Yönetim paneli stilleri
+   Sadece /admin klasörü altındaki sayfalar için
+   ======================================================== */
+
+[x-cloak] {
+  display: none !important;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+.glass {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(12px);
+}
