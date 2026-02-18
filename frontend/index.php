@@ -66,9 +66,13 @@ foreach ($videos as &$v) {
 }
 unset($v);
 
-// Video URL'leri için proje kök path — dosya sistemindeki klasör adı (büyük/küçük harf 404'ü önler)
-$projectDir = basename(dirname(__DIR__));
-$basePath = ($projectDir !== '' && $projectDir !== '.') ? '/' . $projectDir : '';
+// base_path: config.php apiPath (tek merkez). Video/thumbnail linkleri bu prefix ile oluşturulur.
+$configPath = __DIR__ . '/../adminpanel/config.php';
+$appConfig = is_file($configPath) ? (require $configPath) : [];
+$basePath = isset($appConfig['apiPath']) ? rtrim($appConfig['apiPath'], '/') : '';
+if ($basePath === '' && ($projectDir = basename(dirname(__DIR__))) !== '' && $projectDir !== '.') {
+    $basePath = '/' . $projectDir;
+}
 
 echo json_encode([
     'success' => true,

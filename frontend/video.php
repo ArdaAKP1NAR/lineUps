@@ -1,72 +1,75 @@
 <?php
 /**
- * Video dosyasını güvenli şekilde sunar.
- * Admin panelde yüklenen videolar uploads/videos/ içinde; bu script oradan okur ve stream eder.
+ * Video oynatma: Veritabanındaki sadece dosya adı (f=) alınır,
+ * uploads/videos/ klasörüyle birleştirilerek sunulur.
+ * Accept-Ranges ve Content-Length ile tarayıcıda takılmadan oynatma desteklenir.
  */
 error_reporting(0);
-$filename = isset($_GET['f']) ? $_GET['f'] : '';
-$filename = basename($filename);
-if ($filename === '' || preg_match('/[^a-zA-Z0-9_\-\.]/', $filename)) {
+ini_set('display_errors', '0');
+
+$fileName = isset($_GET['f']) ? basename($_GET['f']) : '';
+
+if ($fileName === '' || preg_match('/[^a-zA-Z0-9_\-\.]/', $fileName)) {
     http_response_code(400);
     header('Content-Type: text/plain; charset=utf-8');
     echo 'Geçersiz dosya adı.';
     exit;
 }
 
-$videoDir = realpath(dirname(__DIR__) . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'videos');
-if (!$videoDir || !is_dir($videoDir)) {
-    http_response_code(404);
-    header('Content-Type: text/plain; charset=utf-8');
-    echo 'Video klasörü bulunamadı.';
-    exit;
+$uploadsRoot = realpath(__DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'uploads');
+$videosDir = $uploadsRoot ? realpath($uploadsRoot . DIRECTORY_SEPARATOR . 'videos') : null;
+
+$filePath = null;
+if ($videosDir && is_dir($videosDir)) {
+    $candidatePath = $videosDir . DIRECTORY_SEPARATOR . $fileName;
+    if (is_file($candidatePath) && is_readable($candidatePath)) {
+        $filePath = $candidatePath;
+    }
 }
-$filePath = $videoDir . DIRECTORY_SEPARATOR . $filename;
-if (!is_file($filePath) || !is_readable($filePath)) {
+if (!$filePath && $uploadsRoot && is_dir($uploadsRoot)) {
+    $candidatePath = $uploadsRoot . DIRECTORY_SEPARATOR . $fileName;
+    if (is_file($candidatePath) && is_readable($candidatePath)) {
+        $filePath = $candidatePath;
+    }
+}
+
+if (!$filePath) {
     http_response_code(404);
     header('Content-Type: text/plain; charset=utf-8');
-    $list = @scandir($videoDir) ?: [];
-    $files = array_diff($list, ['.', '..', 'index.php']);
-    $fileList = count($files) > 0 ? implode(', ', array_slice($files, 0, 20)) : '(klasör boş)';
-    echo "Video dosyası bulunamadı: " . $filename . "\n\n";
-    echo "Aranan konum: uploads/videos/\n";
-    echo "Klasördeki dosyalar: " . $fileList . "\n\n";
-    echo "Çözüm: Admin panelden bu videoyu düzenleyin, 'Video dosyası' alanından dosyayı tekrar seçip Güncelle deyin. Dosya 'DosyaAdı_zaman.mp4' olarak kaydedilir.";
+    echo 'Video dosyası bulunamadı: ' . htmlspecialchars($fileName);
     exit;
 }
 
-$ext = strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-$mimes = [
-    'mp4' => 'video/mp4',
-    'webm' => 'video/webm',
-    'mov' => 'video/quicktime',
-    'avi' => 'video/x-msvideo',
-    'mkv' => 'video/x-matroska',
-    'm4v' => 'video/mp4',
-];
-$mime = $mimes[$ext] ?? 'application/octet-stream';
+$fileSize = filesize($filePath);
+$fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+$contentType = 'video/mp4';
+if ($fileExt === 'webm') $contentType = 'video/webm';
+elseif ($fileExt === 'mov') $contentType = 'video/quicktime';
+elseif ($fileExt === 'avi') $contentType = 'video/x-msvideo';
+elseif ($fileExt === 'mkv' || $fileExt === 'm4v') $contentType = $fileExt === 'm4v' ? 'video/mp4' : 'video/x-matroska';
 
-$size = filesize($filePath);
-header('Content-Type: ' . $mime);
-header('Content-Length: ' . $size);
+if (ob_get_level()) ob_end_clean();
+
+header('Content-Type: ' . $contentType);
 header('Accept-Ranges: bytes');
+header('Content-Length: ' . $fileSize);
 header('Cache-Control: public, max-age=3600');
 
-if (isset($_SERVER['HTTP_RANGE'])) {
-    $range = $_SERVER['HTTP_RANGE'];
-    if (preg_match('/bytes=(\d+)-(\d*)/', $range, $m)) {
-        $start = (int) $m[1];
-        $end = $m[2] !== '' ? (int) $m[2] : $size - 1;
-        $end = min($end, $size - 1);
-        $length = $end - $start + 1;
-        http_response_code(206);
-        header('Content-Length: ' . $length);
-        header('Content-Range: bytes ' . $start . '-' . $end . '/' . $size);
-        $fp = fopen($filePath, 'rb');
-        fseek($fp, $start);
-        echo fread($fp, $length);
-        fclose($fp);
-        exit;
+if (isset($_SERVER['HTTP_RANGE']) && preg_match('/bytes=(\d+)-(\d*)/', $_SERVER['HTTP_RANGE'], $rangeMatch)) {
+    $rangeStart = (int) $rangeMatch[1];
+    $rangeEnd = ($rangeMatch[2] !== '') ? (int) $rangeMatch[2] : $fileSize - 1;
+    $rangeEnd = min($rangeEnd, $fileSize - 1);
+    $rangeLength = $rangeEnd - $rangeStart + 1;
+    http_response_code(206);
+    header('Content-Length: ' . $rangeLength);
+    header('Content-Range: bytes ' . $rangeStart . '-' . $rangeEnd . '/' . $fileSize);
+    $fileHandle = fopen($filePath, 'rb');
+    if ($fileHandle) {
+        fseek($fileHandle, $rangeStart);
+        echo fread($fileHandle, $rangeLength);
+        fclose($fileHandle);
     }
+    exit;
 }
 
 readfile($filePath);
